@@ -11,6 +11,7 @@ class GenerateKmerFreq:
         self,
         k: int,
         vocabulary: Mapping | Iterable | None = None,
+        to_array: bool = True,
     ) -> None:
         """Constructor of GenerateKmerFreq
 
@@ -22,7 +23,9 @@ class GenerateKmerFreq:
                 feature matrix, or an iterable over terms. If not given, a
                 vocabulary is determined from the inputs. Indices in the mapping
                 should not be repeated and should not have any gap between 0 and
-                the largest index.
+                the largest index. Defaults to None.
+            to_array (bool, optional):
+                whether to convert sparse matrix to dense one. Defaults to True.
         """
         assert k > 0, f"kmer has to be at least 1-char long but got {k}."
         self.k = k
@@ -33,10 +36,13 @@ class GenerateKmerFreq:
             vocabulary=self.vocabulary,
             lowercase=False,
         )
+        self.to_array = to_array
 
     def __call__(self, seq: str) -> np.ndarray:
         # no fit happens when vocabulary is not None
-        output = self.vectorizer.fit_transform([seq]).toarray()
+        output = self.vectorizer.fit_transform([seq])
+        if self.to_array and not isinstance(output, np.ndarray):
+            output = output.toarray()
         return output
 
     @property
