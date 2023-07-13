@@ -63,11 +63,25 @@ class GenerateMultiKmerFreq:
         self,
         ks: list[int],
         vocabulary: Mapping | Iterable | None = None,
+        to_array: bool = True,
     ):
+        """Constructor of GenerateMultiKmerFreq
+
+        Args:
+            ks (list[int]): values of k to count kmers.
+            vocabulary (Mapping | Iterable | None, optional):
+                vocabulary for kmers of interest. Check GenerateKmerFreq and
+                sklearn's CountVectorizer to see more details about this argument.
+                Defaults to None.
+            to_array (bool, optional):
+                whether to convert sparse matrix to dense one. Defaults to True.
+        """
         self.ks = ks
+        self.to_array = to_array
         self.vocabulary_k = self._get_vocabulary_k(vocabulary)
         self.kmer_freq_generators = [
-            GenerateKmerFreq(k, vocabulary=self.vocabulary_k[k]) for k in self.ks
+            GenerateKmerFreq(k, vocabulary=self.vocabulary_k[k], to_array=self.to_array)
+            for k in self.ks
         ]
 
     def __call__(self, seq: str) -> np.ndarray:
