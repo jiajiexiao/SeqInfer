@@ -1,0 +1,82 @@
+# More gitignore may be added. 
+# .gitignore templates from https://github.com/github/gitignore.
+
+####################
+# Python.gitignore
+####################
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+env/
+venv/
+build/
+develop-eggs/
+dist/
+pip-wheel-metadata/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+*.whl
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+cobertura.xml
+junit.xml
+
+# Sphinx documentation
+docs/_build/
+docs/_autosummary/
+docs/modules/
+
+# IPython Notebook
+.ipynb_checkpoints
+**/.ipynb_checkpoints/
+
+# Pytest cache
+.pytest_cache
+
+# MyPy
+.mypy_cache
+
+# Pipenv
+Pipfile.lock
+
+####################
+# Editors and IDEs #
+####################
+
+#VS Code
+.vscode/*
+
+####################
+# OSX.gitignore
+####################
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+# Thumbnails
+._*
