@@ -149,7 +149,9 @@ class TestKmerTokenizer:
             k=1, stride=2, vocab_dict=vocab_dict, special_tokens=None
         )
         seq = "ACTG"
-        assert tokenizer(seq) == [4, 0, 3, 5]  # "ACTG" -> ["<cls>", "A", "T", "<eos>"] -> [0, 2]
+        assert tokenizer(seq) == [4, 0, 3, 5]
+        # k=1, stride=2, thus C, G were ignored.
+        # "ACTG" -> ["<cls>", "A", "T", "<eos>"] -> [4, 0, 3, 5]
         assert tokenizer_no_special_tokens(seq) == [0, 3]
 
 
