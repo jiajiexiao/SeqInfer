@@ -32,8 +32,16 @@ class TestOneHotEncoder:
         """Test OneHotEncoder with neutral tokens"""
         ohe = OneHotEncoder(vocab_size=4, neutral_ids=[2])
         ohe_output = ohe(input_ids)
-        expected_output = np.array([[1, 0, 0, 0], [0.25, 0.25, 0.25, 0.25], [0, 1, 0, 0]])
-        assert np.all(ohe_output == expected_output)
+        expected_output = np.array([[1, 0, 0], [1.0 / 3, 1.0 / 3, 1.0 / 3], [0, 1, 0]])
+        assert np.allclose(ohe_output, expected_output)
+
+    def test_ohe_invalid_length(self):
+        """Test OneHotEncoder with invalid neutral_ids length"""
+        with pytest.raises(
+            ValueError,
+            match=re.escape("len(neutral_ids) should be smaller than vocab_size."),
+        ):
+            OneHotEncoder(vocab_size=4, neutral_ids=[0, 1, 2, 3])
 
 
 class TestKmerTokenizer:
@@ -174,8 +182,7 @@ class TestKmerTokenizer:
         )
         seq = "ACTG"
         assert tokenizer(seq) == [4, 0, 3, 5]
-        # k=1, stride=2, thus C, G were ignored.
-        # "ACTG" -> ["<cls>", "A", "T", "<eos>"] -> [4, 0, 3, 5]
+        # k=1, stride=2, thus C, G were ignored. "ACTG"->["<cls>", "A", "T", "<eos>"]->[4, 0, 3, 5]
         assert tokenizer_no_special_tokens(seq) == [0, 3]
 
 
