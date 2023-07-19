@@ -8,8 +8,32 @@ from seqlearn.seqs.transforms import (
     KmerFreqGenerator,
     KmerTokenizer,
     MultiKmerFreqGenerator,
+    OneHotEncoder,
 )
 from seqlearn.seqs.vocabularies import SpecialToken
+
+
+class TestOneHotEncoder:
+    """Unit test class for OneHotEncoder"""
+
+    @pytest.fixture
+    def input_ids(self):
+        """Pytest fixture for usable input_ids for tests"""
+        return [0, 2, 1]
+
+    def test_ohe_without_neutral_tokens(self, input_ids):
+        """Test OneHotEncoder without neutral tokens"""
+        ohe = OneHotEncoder(vocab_size=4)
+        ohe_output = ohe(input_ids)
+        expected_output = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0]])
+        assert np.all(ohe_output == expected_output)
+
+    def test_ohe_with_neutral_tokens(self, input_ids):
+        """Test OneHotEncoder with neutral tokens"""
+        ohe = OneHotEncoder(vocab_size=4, neutral_ids=[2])
+        ohe_output = ohe(input_ids)
+        expected_output = np.array([[1, 0, 0, 0], [0.25, 0.25, 0.25, 0.25], [0, 1, 0, 0]])
+        assert np.all(ohe_output == expected_output)
 
 
 class TestKmerTokenizer:
