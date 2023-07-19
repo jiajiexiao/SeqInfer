@@ -6,13 +6,6 @@ from sklearn.feature_extraction.text import CountVectorizer
 from seqlearn.seqs.vocabularies import SpecialToken
 from seqlearn.utils.logger import LogLevel, log_msg
 
-# from sklearn.preprocessing import OneHotEncoder
-
-
-# One hot encode from kmer
-# Special one hot encode for N, etc
-# Embedding from idx
-
 
 class OneHotEncoder:
     """OneHotEncoder class for converting token IDs into one-hot encoded vectors.
@@ -37,11 +30,20 @@ class OneHotEncoder:
                 For neutral tokens, the one-hot encoding will assign equal probabilities across all
                 tokens in the vocabulary. If not provided (None), regular one-hot encoding will be
                 used for all token IDs. Defaults to None.
+
+        Raises:
+            ValueError: If len(neutral_ids) is greater than or equal to vocab_size.
         """
         assert vocab_size > 0, f"vocab_size needs to be a positive integer but got {vocab_size}."
-
-        self.vocab_size = vocab_size
         self.neutral_ids = neutral_ids
+
+        if self.neutral_ids:
+            if len(self.neutral_ids) >= vocab_size:
+                raise ValueError("len(neutral_ids) should be smaller than vocab_size.")
+
+            self.vocab_size = vocab_size - len(self.neutral_ids)
+        else:
+            self.vocab_size = vocab_size
 
     def __call__(self, ids: list[int]) -> np.ndarray:
         """Encode a list of token IDs into one-hot encoded vectors.
@@ -112,10 +114,9 @@ class KmerTokenizer:
         """Initialize the KmerTokenizer.
 
         Args:
-            k (int): Length of each k-mer token.
-            stride (int): Stride value for sliding the k-mer window.
-            vocab_dict (dict[str, int]): Vocabulary dictionary mapping tokens to their indices.
-            num_output_tokens (int | None, optional):
+            k (int): Length of each k-mer token. stride (int): Stride value for sliding the k-mer
+            window. vocab_dict (dict[str, int]): Vocabulary dictionary mapping tokens to their
+            indices. num_output_tokens (int | None, optional):
                 Number of tokens (including special tokens) to output. Defaults to None, meaning no
                 restrictions on number of tokens to output.
             special_tokens (Type[SpecialToken], optional):
@@ -167,8 +168,8 @@ class KmerTokenizer:
     def tokenize(self, seq: str) -> list[str]:
         """Tokenize the input sequence into k-mer tokens.
 
-        This method requires no special tokens in the input sequence, and special tokens will
-        be added to the output of this method if self.special_tokens != None.
+        This method requires no special tokens in the input sequence, and special tokens will be
+        added to the output of this method if self.special_tokens != None.
 
         Args:
             seq (str): The sequence to be tokenized.
@@ -248,8 +249,8 @@ class KmerTokenizer:
     def _check_output_length(self, tokens: list[str]) -> None:
         """Check if the number of output tokens matches the desired output length.
 
-        If the desired number of output tokens is specified and the actual number of tokens
-        is smaller, a ValueError is raised.
+        If the desired number of output tokens is specified and the actual number of tokens is
+        smaller, a ValueError is raised.
 
         Args:
             tokens (list[str]): The list of tokens.
@@ -311,10 +312,9 @@ class KmerTokenizer:
         """Maps an index to its corresponding token in the vocabulary.
 
         Args:
-            idx (int): The index to be mapped.
-            offset (int, optional):
-                offset integer used in vocabulary dict. Default to 1, to reserve the
-                0th index for CLS token.
+            idx (int): The index to be mapped. offset (int, optional):
+                offset integer used in vocabulary dict. Default to 1, to reserve the 0th index for
+                CLS token.
 
         Returns:
             str: The token corresponding to the input index.
@@ -359,14 +359,12 @@ class KmerFreqGenerator:
         """Initialize the KmerFreqGenerator
 
         Args:
-            k (int): length of kmer.
-            vocabulary (Mapping | Iterable, optional):
-                vocabulary for kmers of interest. Either a Mapping (e.g., a
-                dict) where keys are terms and values are indices in the
-                feature matrix, or an iterable over terms. If not given, a
-                vocabulary is determined from the inputs. Indices in the mapping
-                should not be repeated and should not have any gap between 0 and
-                the largest index. Defaults to None.
+            k (int): length of kmer. vocabulary (Mapping | Iterable, optional):
+                vocabulary for kmers of interest. Either a Mapping (e.g., a dict) where keys are
+                terms and values are indices in the feature matrix, or an iterable over terms. If
+                not given, a vocabulary is determined from the inputs. Indices in the mapping should
+                not be repeated and should not have any gap between 0 and the largest index.
+                Defaults to None.
             to_array (bool, optional):
                 whether to convert sparse matrix to dense one. Defaults to True.
         """
@@ -411,11 +409,10 @@ class MultiKmerFreqGenerator:
         """Initialize the MultiKmerFreqGenerator
 
         Args:
-            ks (list[int]): values of k to count kmers.
-            vocabulary (Mapping | Iterable | None, optional):
-                vocabulary for kmers of interest. Check KmerFreqGenerator and
-                sklearn's CountVectorizer to see more details about this argument.
-                Defaults to None.
+            ks (list[int]): values of k to count kmers. vocabulary (Mapping | Iterable | None,
+            optional):
+                vocabulary for kmers of interest. Check KmerFreqGenerator and sklearn's
+                CountVectorizer to see more details about this argument. Defaults to None.
             to_array (bool, optional):
                 whether to convert sparse matrix to dense one. Defaults to True.
         """
@@ -450,12 +447,12 @@ class MultiKmerFreqGenerator:
 
         Args:
             vocabulary (Mapping | Iterable | None):
-                vocabulary for kmers of interest. Check KmerFreqGenerator and
-                sklearn's CountVectorizer to see more details about this argument.
+                vocabulary for kmers of interest. Check KmerFreqGenerator and sklearn's
+                CountVectorizer to see more details about this argument.
 
         Raises:
-            ValueError: A kmer in the vocabulary has a length outside the range of ks.
-            ValueError: A value of k in ks is not found in the user-specified vocabulary.
+            ValueError: A kmer in the vocabulary has a length outside the range of ks. ValueError: A
+            value of k in ks is not found in the user-specified vocabulary.
 
         Returns:
             dict[int, Mapping | Iterable | None]: a dictionary contains sub-vocabulary per k.
