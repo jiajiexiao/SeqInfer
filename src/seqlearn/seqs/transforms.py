@@ -6,6 +6,63 @@ from sklearn.feature_extraction.text import CountVectorizer
 from seqlearn.seqs.vocabularies import SpecialToken
 from seqlearn.utils.logger import LogLevel, log_msg
 
+# from sklearn.preprocessing import OneHotEncoder
+
+
+# One hot encode from kmer
+# Special one hot encode for N, etc
+# Embedding from idx
+
+
+class OneHotEncoder:
+    """OneHotEncoder class for converting token IDs into one-hot encoded vectors.
+
+    This class is useful for converting categorical token IDs into their corresponding one-hot
+    encoded representations. Moreover, it also supports special conversion of `neutral tokens`,
+    which will be assigned equal probabilities across all tokens in the vocabulary. This ensures
+    that neutral tokens do not dominate the learned representations when used in various downstream
+    tasks.
+    """
+
+    def __init__(self, vocab_size: int, neutral_ids: list[int] | None = None) -> None:
+        """Initialize the OneHotEncoder.
+
+        Args:
+            vocab_size (int):
+                The size of the vocabulary. It represents the total number of unique tokens in the
+                vocabulary. It should also count for the special tokens if they are used during
+                tokenization.
+            neutral_ids (list[int] | None, optional):
+                A optional list of integers representing token IDs that are considered `neutral`.
+                For neutral tokens, the one-hot encoding will assign equal probabilities across all
+                tokens in the vocabulary. If not provided (None), regular one-hot encoding will be
+                used for all token IDs. Defaults to None.
+        """
+        assert vocab_size > 0, f"vocab_size needs to be a positive integer but got {vocab_size}."
+
+        self.vocab_size = vocab_size
+        self.neutral_ids = neutral_ids
+
+    def __call__(self, ids: list[int]) -> np.ndarray:
+        """Encode a list of token IDs into one-hot encoded vectors.
+
+        Args:
+            ids (list[int]): A list of integers representing token IDs that need to be one-hot
+            encoded.
+
+        Returns:
+            np.ndarray: A 2D NumPy array representing the one-hot encoded matrix for the input list
+            of token IDs. The shape of the output matrix will be (num_tokens, vocab_size).
+        """
+        num_tokens = len(ids)
+        output = np.zeros((num_tokens, self.vocab_size))
+        output[np.arange(num_tokens), ids] = 1.0
+        if self.neutral_ids:
+            neutral_ids = np.arange(num_tokens)[np.isin(ids, self.neutral_ids)]
+            if len(neutral_ids) > 0:
+                output[neutral_ids, :] = 1.0 / self.vocab_size
+        return output
+
 
 class KmerTokenizer:
     """Tokenizer based on kmers.
