@@ -2,6 +2,7 @@ import re
 
 import numpy as np
 import pytest
+import torch
 
 from seqlearn.seqs.datasets import SeqFromMemDataset
 from seqlearn.seqs.transforms import (
@@ -9,6 +10,7 @@ from seqlearn.seqs.transforms import (
     KmerTokenizer,
     MultiKmerFreqGenerator,
     OneHotEncoder,
+    ToTensor,
 )
 from seqlearn.seqs.vocabularies import SpecialToken
 
@@ -243,3 +245,21 @@ class TestMultiKmerFreqGenerator:
             match=re.escape("Input vocabulary contains 2mer outside input range [1, 3]."),
         ):
             MultiKmerFreqGenerator(ks=[1, 3], vocabulary=["a", "bc"])
+
+
+class TestToTensor:
+    """Unit test class for ToTensor"""
+
+    def test_to_tensor_with_desired_dtype(self):
+        """Test ToTensor with desired dtype"""
+        output = ToTensor(torch.float16)([1, 2, 3])
+        expected_output = torch.tensor([1, 2, 3], dtype=torch.float16)
+        assert torch.equal(output, expected_output)
+        assert output.dtype == expected_output.dtype
+
+    def test_to_tensor_inferred_dtype(self):
+        """Test ToTensor without desired dtype"""
+        output = ToTensor()([1, 2, 3])
+        expected_output = torch.tensor([1, 2, 3], dtype=torch.int64)
+        assert torch.equal(output, expected_output)
+        assert output.dtype == expected_output.dtype
