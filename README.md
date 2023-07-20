@@ -2,7 +2,10 @@
 
 SeqLearn is a Python package designed for learning from sequences. 
 
-Initially focused on biological sequences such as DNA, RNA, and protein sequences, it provides essential tools and algorithms for handling sequence data. However, the package is designed to be easily expandable to accommodate other types of sequences, such as SMILE strings or time series.
+Initially focused on biological sequences such as DNA, RNA, and protein sequences, it provides
+essential tools and algorithms for handling sequence data. However, the package is designed to be
+easily expandable to accommodate other types of sequences, such as SMILE strings or time series.
+Relevant helper modules may be added in the future development. 
 
 ## Table of Contents
 
@@ -72,12 +75,17 @@ seq_dataset = SeqFromFileDataset(
 
 The SeqLearn package is organized into two major parts:
 
-1.  `seqs`: Contains modules to define and manage the data/dataset of sequences and provides various related transformation operations.
-2.  `learners`: Contains modules for different learners (learning algorithms) to perform tasks such as classification, regression, self-supervised representation learning, sequence generation, etc.
+1.  `seqs`: Contains modules to define and manage the data/dataset of sequences and provides various
+    related transformation operations.
+2.  `learners`: Contains modules for different learners (learning algorithms) to conduct learning
+    tasks such as classification, regression, self-supervised representation learning, sequence
+    generation, etc.
 
 ## Examples
 
-The `examples` folder contains illustrative examples demonstrating the usage of SeqLearn for various tasks, including classification, regression, multitask learning, etc. Each example includes a README to guide you through the usage and expected results.
+The `examples` folder contains illustrative examples demonstrating the usage of SeqLearn for various
+tasks, including classification, regression, multitask learning, etc. Each example includes a README
+to guide you through the usage and expected results.
 
 ## Contributing
 
@@ -90,4 +98,6 @@ This project is licensed under the MIT License - see the [LICENSE](/LICENSE) fil
 
 ----------
 
-We hope you find SeqLearn useful for your sequence learning tasks! If you encounter any issues or have suggestions for improvement, please feel free to open an issue or submit a pull request. Happy coding!
+We hope you find SeqLearn useful for your sequence learning tasks! If you encounter any issues or
+have suggestions for improvement, please feel free to open an issue or submit a pull request. Happy
+coding!
