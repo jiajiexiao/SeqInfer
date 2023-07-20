@@ -1,6 +1,7 @@
 from typing import Iterable, Mapping, Type
 
 import numpy as np
+import torch
 from sklearn.feature_extraction.text import CountVectorizer
 
 from seqlearn.seqs.vocabularies import SpecialToken
@@ -474,3 +475,19 @@ class MultiKmerFreqGenerator:
 
             return vocab_k
         return {k: None for k in self.ks}
+
+
+class ToTensor:
+    """Class to convert input to torch tensor"""
+
+    def __init__(self, dtype: torch.dtype | None = None):
+        """Initialize ToTensor
+
+        Args:
+            dtype (torch.dtype | None, optional): Desired dtype for the output. Defaults to None, meaning
+            the dtype will be inferred from the data directly.
+        """
+        self.dtype = dtype
+
+    def __call__(self, input: list | np.ndarray) -> torch.Tensor:
+        return torch.as_tensor(input, dtype=self.dtype)
