@@ -1,13 +1,15 @@
-# SeqLearn
+# SeqInfer
 
 <!-- [![codecov](https://codecov.io/gh/username/repository/branchname/graph/badge.svg)](https://codecov.io/gh/username/repository)-->
 
-SeqLearn is a Python package designed for learning from sequences. 
+SeqInfer is a Python package for sequence inference, enabling outcome prediction, sequence generation, and meaningful representation discovery. 
 
 Initially focused on biological sequences such as DNA, RNA, and protein sequences, it provides
 essential tools and algorithms for handling sequence data. However, the package is designed to be
 easily expandable to accommodate other types of sequences, such as SMILE strings or time series.
 Relevant helper modules may be added in the future development. 
+
+**This library was renamed to SeqInfer from SeqLearn to avoid potential conflicts and confusion given that SeqInfer has been used by other people's repo.
 
 ## Table of Contents
 
@@ -21,10 +23,10 @@ Relevant helper modules may be added in the future development.
 ## Installation
 
 
-1. Clone seqlearn repository
+1. Clone seqinfer repository
 ```
-git clone https://github.com/jiajiexiao/seqlearn.git
-cd seqlearn/
+git clone https://github.com/jiajiexiao/seqinfer.git
+cd seqinfer/
 ```
 
 2. Install in development mode
@@ -38,19 +40,19 @@ pip install -e ./
 ```
 
 
-<!-- You can install SeqLearn using pip:
+<!-- You can install SeqInfer using pip:
 
-`pip install seqlearn`  -->
+`pip install seqinfer`  -->
 
 ## Usage
 
-To use SeqLearn, simply import the desired modules from the `seqs` and `learners` sub-packages.
+To use SeqInfer, simply import the desired modules from the `seqs` and `learners` sub-packages.
 
 For example, you can prepare the data as below: 
 ```python
-from seqlearn.seqs.datasets import SeqFromFileDataset
-from seqlearn.seqs.transforms import KmerTokenizer, OneHotEncoder, ToTensor
-from seqlearn.seqs.vocabularies import unambiguous_dna_vocabulary_dict
+from seqinfer.seq.datasets import SeqFromFileDataset
+from seqinfer.seq.transforms import KmerTokenizer, OneHotEncoder, ToTensor
+from seqinfer.seq.vocabularies import unambiguous_dna_vocabulary_dict
 
 seq_dataset = SeqFromFileDataset(
     seq_file="examples/aptamers/pos.fasta",
@@ -75,23 +77,23 @@ seq_dataset = SeqFromFileDataset(
 
 ## Project Structure
 
-The SeqLearn package is organized into two major parts:
+The SeqInfer package is organized into two major parts:
 
-1.  `seqs`: Contains modules to define and manage the data/dataset of sequences and provides various
+1.  `seq`: Contains modules to define and manage the data/dataset of sequences and provides various
     related transformation operations.
-2.  `learners`: Contains modules for different learners (learning algorithms) to conduct learning
+2.  `infer`: Contains modules for different learners (learning algorithms) to conduct learning
     tasks such as classification, regression, self-supervised representation learning, sequence
     generation, etc.
 
 ## Examples
 
-The `examples` folder contains illustrative examples demonstrating the usage of SeqLearn for various
+The `examples` folder contains illustrative examples demonstrating the usage of SeqInfer for various
 tasks, including classification, regression, multitask learning, etc. Each example includes a README
 to guide you through the usage and expected results.
 
 ## Contributing
 
-We welcome contributions to improve and extend SeqLearn. If you would like to contribute, please
+We welcome contributions to improve and extend SeqInfer. If you would like to contribute, please
 follow our [contribution guidelines](CONTRIBUTING.md) (To be added).
 
 ## License
@@ -100,6 +102,6 @@ This project is licensed under the MIT License - see the [LICENSE](/LICENSE) fil
 
 ----------
 
-We hope you find SeqLearn useful for your sequence learning tasks! If you encounter any issues or
+We hope you find SeqInfer useful for your sequence learning tasks! If you encounter any issues or
 have suggestions for improvement, please feel free to open an issue or submit a pull request. Happy
 coding!

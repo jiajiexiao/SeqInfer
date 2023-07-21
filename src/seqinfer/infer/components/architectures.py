@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from seqlearn.utils.misc import import_object_from_path
+from seqinfer.utils.misc import import_object_from_path
 
 
 class FNN(nn.Module):

@@ -1,10 +1,9 @@
 import numpy as np
 import torch
+from seqinfer.seq.datasets import SeqFromFileDataset, SeqFromMemDataset
+from seqinfer.seq.transforms import KmerTokenizer, OneHotEncoder, ToTensor
+from seqinfer.seq.vocabularies import unambiguous_dna_vocabulary_dict
 from torchvision.transforms import Compose
-
-from seqlearn.seqs.datasets import SeqFromFileDataset, SeqFromMemDataset
-from seqlearn.seqs.transforms import KmerTokenizer, OneHotEncoder, ToTensor
-from seqlearn.seqs.vocabularies import unambiguous_dna_vocabulary_dict
 
 
 class TestSeqFromMemDataset:
