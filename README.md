@@ -1,5 +1,7 @@
 # SeqLearn
 
+<!-- [![codecov](https://codecov.io/gh/username/repository/branchname/graph/badge.svg)](https://codecov.io/gh/username/repository)-->
+
 SeqLearn is a Python package designed for learning from sequences. 
 
 Initially focused on biological sequences such as DNA, RNA, and protein sequences, it provides
