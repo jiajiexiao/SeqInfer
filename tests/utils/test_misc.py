@@ -37,3 +37,14 @@ class TestImportObjectFromPath:
             ImportError, match="Could not import object from path 'invalid.path.format':"
         ):
             import_object_from_path("invalid.path.format")
+
+    def test_import_attribute_error(self):
+        """Test handling import of a non-existent attribute using import_object_from_path."""
+        with pytest.raises(
+            ImportError,
+            match=(
+                "Could not import object from path 'os.path.nonexistent_attribute': "
+                "module 'posixpath' has no attribute 'nonexistent_attribute'"
+            ),
+        ):
+            import_object_from_path("os.path.nonexistent_attribute")
