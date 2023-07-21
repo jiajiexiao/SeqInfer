@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "seqinfer"
 version = "0.1.0"
-description = "A package for learning from sequences."
+description = "A Python library for sequence inference."
 authors = ["jjxiao <jiajiexiao@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
