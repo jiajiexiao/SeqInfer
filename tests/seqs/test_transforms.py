@@ -3,16 +3,15 @@ import re
 import numpy as np
 import pytest
 import torch
-
-from seqlearn.seqs.datasets import SeqFromMemDataset
-from seqlearn.seqs.transforms import (
+from seqinfer.seq.datasets import SeqFromMemDataset
+from seqinfer.seq.transforms import (
     KmerFreqGenerator,
     KmerTokenizer,
     MultiKmerFreqGenerator,
     OneHotEncoder,
     ToTensor,
 )
-from seqlearn.seqs.vocabularies import SpecialToken
+from seqinfer.seq.vocabularies import SpecialToken
 
 
 class TestOneHotEncoder:

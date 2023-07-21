@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "seqlearn"
+name = "seqinfer"
 version = "0.1.0"
 description = "A package for learning from sequences."
 authors = ["jjxiao <jiajiexiao@users.noreply.github.com>"]

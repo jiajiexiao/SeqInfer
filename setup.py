@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="seqlearn",
+    name="seqinfer",
     version="0.0.1",
     author="Jiajie Xiao",
     author_email="jiajiexiao@gmail.com",
     description="A package to learn from sequence",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jiajiexiao/seqlearn",
+    url="https://github.com/jiajiexiao/seqinfer",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

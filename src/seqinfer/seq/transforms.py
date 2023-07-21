@@ -2,10 +2,9 @@ from typing import Iterable, Mapping, Type
 
 import numpy as np
 import torch
+from seqinfer.seq.vocabularies import SpecialToken
+from seqinfer.utils.logger import LogLevel, log_msg
 from sklearn.feature_extraction.text import CountVectorizer
-
-from seqlearn.seqs.vocabularies import SpecialToken
-from seqlearn.utils.logger import LogLevel, log_msg
 
 
 class OneHotEncoder:
