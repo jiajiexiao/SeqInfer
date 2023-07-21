@@ -51,7 +51,7 @@ To use SeqInfer, simply import the desired modules from the `seqs` and `learners
 For example, you can prepare the data as below: 
 ```python
 from seqinfer.seq.datasets import SeqFromFileDataset
-from seqinfer.seq.transforms import KmerTokenizer, OneHotEncoder, ToTensor
+from seqinfer.seq.transforms import Compose, KmerTokenizer, OneHotEncoder, ToTensor
 from seqinfer.seq.vocabularies import unambiguous_dna_vocabulary_dict
 
 seq_dataset = SeqFromFileDataset(

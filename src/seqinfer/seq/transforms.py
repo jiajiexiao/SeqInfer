@@ -1,10 +1,11 @@
-from typing import Iterable, Mapping, Type
+from typing import Any, Callable, Iterable, Mapping, Type
 
 import numpy as np
 import torch
+from sklearn.feature_extraction.text import CountVectorizer
+
 from seqinfer.seq.vocabularies import SpecialToken
 from seqinfer.utils.logger import LogLevel, log_msg
-from sklearn.feature_extraction.text import CountVectorizer
 
 
 class OneHotEncoder:
@@ -488,5 +489,38 @@ class ToTensor:
         """
         self.dtype = dtype
 
-    def __call__(self, input: list | np.ndarray) -> torch.Tensor:
-        return torch.as_tensor(input, dtype=self.dtype)
+    def __call__(self, data: list | np.ndarray) -> torch.Tensor:
+        return torch.as_tensor(data, dtype=self.dtype)
+
+
+class Compose:
+    """Class to composes multiple Callable together to conduct transformation on the data
+    sequentially."""
+
+    def __init__(self, transforms: list[Callable]):
+        """Initialize Compose
+
+        Args:
+            transforms (list[Callable]): A list of callable that define the transformation
+        """
+        for i, transform in enumerate(transforms):
+            assert callable(transform), f"The {i}th transform {transform} is not callable."
+        self.transforms = transforms
+
+    def __call__(self, data: Any) -> Any:
+        """Apply the composed transforms to the input data sequentially
+
+        Args:
+            data (_type_): _description_
+
+        Returns:
+            Any: Transformed data after applying all the transforms.
+        """
+        for transform in self.transforms:
+            data = transform(data)
+        return data
+
+    def __repr__(self) -> str:
+        """Return a string representation of the Compose object."""
+        transform_strings = [f"{transform.__name__}" for transform in self.transforms]
+        return f"{self.__class__.__name__}({', '.join(transform_strings)})"

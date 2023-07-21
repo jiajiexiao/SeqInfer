@@ -3,8 +3,10 @@ import re
 import numpy as np
 import pytest
 import torch
+
 from seqinfer.seq.datasets import SeqFromMemDataset
 from seqinfer.seq.transforms import (
+    Compose,
     KmerFreqGenerator,
     KmerTokenizer,
     MultiKmerFreqGenerator,
@@ -262,3 +264,44 @@ class TestToTensor:
         expected_output = torch.tensor([1, 2, 3], dtype=torch.int64)
         assert torch.equal(output, expected_output)
         assert output.dtype == expected_output.dtype
+
+
+class TestCompose:
+    """Unit tests for the Compose class."""
+
+    def transform_fn1(self, data: float) -> float:
+        """Sample transform function that adds 1 to the input data."""
+        return data + 1
+
+    def transform_fn2(self, data: float) -> float:
+        """Sample transform function that multiplies the input data by 2."""
+        return data * 2
+
+    def test_compose_with_single_transform(self):
+        """Test applying a single transform using the Compose class."""
+        input_data = 10
+        transforms = [self.transform_fn1]
+        composed_transforms = Compose(transforms)
+        output = composed_transforms(input_data)
+        assert output == self.transform_fn1(input_data)
+        assert repr(composed_transforms) == "Compose(transform_fn1)"
+
+    def test_compose_with_multiple_transforms(self):
+        """Test applying multiple transforms using the Compose class."""
+        input_data = 10
+        transforms = [self.transform_fn1, self.transform_fn2]
+        composed_transforms = Compose(transforms)
+
+        output = composed_transforms(input_data)
+        expected_output = self.transform_fn2(self.transform_fn1(input_data))
+        assert output == expected_output
+        assert repr(composed_transforms) == "Compose(transform_fn1, transform_fn2)"
+
+    def test_compose_with_noncallable_transforms(self):
+        """Test that Compose correctly raises an assertion error for non-callable transforms."""
+        transforms = [self.transform_fn1, "non_callable"]
+        with pytest.raises(
+            AssertionError,
+            match=f"The {1}th transform non_callable is not callable.",
+        ):
+            Compose(transforms)
