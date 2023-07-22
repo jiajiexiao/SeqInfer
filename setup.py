@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     author="Jiajie Xiao",
     author_email="jiajiexiao@gmail.com",
-    description="A package to learn from sequence",
+    description="A package to sequence inference",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jiajiexiao/seqinfer",
