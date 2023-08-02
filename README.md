@@ -23,13 +23,17 @@ Relevant helper modules may be added in the future development.
 
 ## Installation
 You can install `SeqInfer` using pip:
+
+
 `pip install seqinfer` 
-Or 
+
+You can also install any branch directly from git repo as the following example:
+
 `pip install git+https://github.com/jiajiexiao/seqinfer.git`
 
 ## Usage
 
-To use SeqInfer, simply import the desired modules from the `seqs` and `learners` sub-packages.
+To use SeqInfer, simply import the desired modules from the `seq` and `infer` sub-packages.
 
 For example, you can prepare the data as below: 
 ```python
