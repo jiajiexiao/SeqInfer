@@ -5,6 +5,11 @@ description = "A Python library for sequence inference."
 authors = ["jjxiao <jiajiexiao@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
