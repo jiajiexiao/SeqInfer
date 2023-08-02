@@ -22,28 +22,10 @@ Relevant helper modules may be added in the future development.
 -   [License](README.md#license)
 
 ## Installation
-
-
-1. Clone seqinfer repository
-```
-git clone https://github.com/jiajiexiao/seqinfer.git
-cd seqinfer/
-```
-
-2. Install in development mode
-### Install in “develop” or “editable” mode:
-```
-python setup.py develop
-```
-or
-```
-pip install -e ./
-```
-
-
-<!-- You can install SeqInfer using pip:
-
-`pip install seqinfer`  -->
+You can install `SeqInfer` using pip:
+`pip install seqinfer` 
+Or 
+`pip install git+https://github.com/jiajiexiao/seqinfer.git`
 
 ## Usage
 
@@ -56,7 +38,7 @@ from seqinfer.seq.transforms import Compose, KmerTokenizer, OneHotEncoder, ToTen
 from seqinfer.seq.vocabularies import unambiguous_dna_vocabulary_dict
 
 seq_dataset = SeqFromFileDataset(
-    seq_file="examples/aptamers/pos.fasta",
+    seq_file="examples/toys/CCA-TXXAGG-AG-TGG-TC-A-T/pos.fasta",
     seq_file_fmt="fasta",
     transform_sequences=Compose(
         [
