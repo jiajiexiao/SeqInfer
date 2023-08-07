@@ -1,5 +1,5 @@
 import torch
-import torch.nn as nn
+from torch import nn
 
 from seqinfer.utils.misc import import_object_from_path
 
