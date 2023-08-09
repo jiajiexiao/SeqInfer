@@ -15,7 +15,7 @@ class SeqFromMemDataset(Dataset):
     def __init__(
         self,
         sequences: list[str],
-        targets: None | list[Any] = None,
+        targets: None | list[Any] | str | int = None,
         transform_sequences: None | Callable = None,
         transform_targets: None | Callable = None,
     ) -> None:
@@ -24,7 +24,7 @@ class SeqFromMemDataset(Dataset):
         Args:
             sequences (list[str]):
                 Input sequences
-            targets (None | list[Any], optional):
+            targets (None | list[Any] | str | int, optional):
                 Input targets correspond to each sequence. Defaults to None.
             transform_sequences (None | Callable, optional):
                 transformation on each sequence record. Defaults to None.
@@ -35,7 +35,7 @@ class SeqFromMemDataset(Dataset):
         super().__init__()
         self.sequences = sequences
         self.targets = targets
-        if targets:
+        if isinstance(targets, list):
             assert len(self.sequences) == len(self.targets)
         self.transform_sequences = transform_sequences
         self.transform_targets = transform_targets
@@ -48,7 +48,7 @@ class SeqFromMemDataset(Dataset):
         if self.transform_sequences:
             seq = self.transform_sequences(seq)
 
-        target = self.targets[index] if self.targets else self.targets
+        target = self.targets[index] if isinstance(self.targets, list) else self.targets
         if self.transform_targets:
             target = self.transform_targets(target)
         return seq, target
@@ -61,7 +61,7 @@ class SeqFromFileDataset(Dataset):
         self,
         seq_file: str,
         seq_file_fmt: str,
-        targets: None | list[Any] = None,
+        targets: None | list[Any] | str | int = None,
         transform_sequences: None | Callable = None,
         transform_targets: None | Callable = None,
     ) -> None:
@@ -72,7 +72,7 @@ class SeqFromFileDataset(Dataset):
                 path for the input seq file.
             seq_file_fmt (str):
                 format of the input seq file. Should be supported by Biopython's Bio.SeqIO.
-            targets (None | list[Any], optional):
+            targets (None | list[Any] | str | int, optional):
                 Input targets correspond to each sequence. Defaults to None.
             transform_sequences (None | Callable, optional):
                 transformation on each sequence record. Defaults to None.
@@ -98,7 +98,7 @@ class SeqFromFileDataset(Dataset):
         if self.transform_sequences:
             seq = self.transform_sequences(seq)
 
-        target = self.targets[index] if self.targets else self.targets
+        target = self.targets[index] if isinstance(self.targets, list) else self.targets
         if self.transform_targets:
             target = self.transform_targets(target)
         return seq, target
