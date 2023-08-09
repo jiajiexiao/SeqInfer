@@ -135,7 +135,7 @@ class TestBinaryClassificationMetrics:
         assert "BinaryAveragePrecision" in classification_metrics_prob
 
     def test_equality_logits_prob(self):
-        """Test that metrics are same for logit and probability predictions. This is due to
+        """Test that metrics are same for logit and probability predictions. This is due to the
         functionality of torchmetrics"""
         classification_metrics_logits = self.metrics(self.prob, self.target)
         classification_metrics_prob = self.metrics(self.pred_logits, self.target)
