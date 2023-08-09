@@ -493,6 +493,21 @@ class ToTensor:
         return torch.as_tensor(data, dtype=self.dtype)
 
 
+class LabelEncoder:
+    """Class to convert str label to integer according to the input mapping rule"""
+
+    def __init__(self, mapping: dict[str, int]) -> None:
+        """Initialize LabelEncoder
+
+        Args:
+            mapping (dict[str, int]): mapping rule to project str label to integer.
+        """
+        self.mapping = mapping
+
+    def __call__(self, labels: list[str]) -> np.ndarray:
+        return np.array([self.mapping[label] for label in labels])
+
+
 class Compose:
     """Class to composes multiple Callable together to conduct transformation on the data
     sequentially."""

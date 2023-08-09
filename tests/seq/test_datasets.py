@@ -42,6 +42,7 @@ class TestSeqFromFileDataset:
                     ToTensor(),
                 ]
             ),
+            targets=1,
         )
         assert len(seq_dataset) == 2500
         assert torch.equal(
@@ -50,3 +51,5 @@ class TestSeqFromFileDataset:
                 np.array([[0.0, 1.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
             ),
         )
+        assert seq_dataset[99][1] == 1
+        assert seq_dataset[1024][1] == 1

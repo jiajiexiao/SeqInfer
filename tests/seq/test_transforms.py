@@ -9,6 +9,7 @@ from seqinfer.seq.transforms import (
     Compose,
     KmerFreqGenerator,
     KmerTokenizer,
+    LabelEncoder,
     MultiKmerFreqGenerator,
     OneHotEncoder,
     ToTensor,
@@ -305,3 +306,35 @@ class TestCompose:
             match=f"The {1}th transform non_callable is not callable.",
         ):
             Compose(transforms)
+
+
+class TestLabelEncoder:
+    """Unit test class for LabelEncoder"""
+
+    @pytest.fixture
+    def le(self):
+        """Fixture to create LabelEncoder instance"""
+        mapping = {"cat": 0, "dog": 1, "bird": 2}
+        return LabelEncoder(mapping)
+
+    def test_init(self, le):
+        """Test initialization stores mapping correctly"""
+        assert le.mapping == {"cat": 0, "dog": 1, "bird": 2}
+
+    def test_call(self, le):
+        """Test encoding known labels to integers"""
+        labels = ["cat", "dog", "bird"]
+        expected = [0, 1, 2]
+        assert all(le(labels) == expected)
+
+    def test_missing_label(self, le):
+        """Test error raised when unknown label is passed"""
+        labels = ["cat", "dog", "fish"]
+        with pytest.raises(KeyError):
+            le(labels)
+
+    def test_empty(self, le):
+        """Test encoding empty label list"""
+        labels = []
+        expected = np.array([])
+        assert all(le(labels) == expected)
