@@ -508,6 +508,31 @@ class LabelEncoder:
         return np.array([self.mapping[label] for label in labels])
 
 
+class Squeeze:
+    """Squeeze transform class that removes dimensions of size 1 from data."""
+
+    def __call__(self, data: np.ndarray | torch.Tensor) -> np.ndarray | torch.Tensor:
+        """Squeeze dimensions of size 1 from data.
+
+        Args:
+            data (numpy.ndarray or torch.Tensor): Input data.
+
+        Raises:
+            TypeError: invalid input type.
+
+        Returns:
+            np.ndarray | torch.Tensor: Data with singleton dimensions removed.
+        """
+        if isinstance(data, np.ndarray):
+            return np.squeeze(data)
+        elif isinstance(data, torch.Tensor):
+            return torch.squeeze(data)
+        else:
+            raise TypeError(
+                f"Squeeze only supports numpy array and torch Tensor but got {type(data)}"
+            )
+
+
 class Unsqueeze:
     """Class to insert a dimension of size one at the specified position.
     Supports both numpy arrays and torch tensors as input.
