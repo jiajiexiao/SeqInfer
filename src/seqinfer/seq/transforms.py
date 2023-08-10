@@ -508,6 +508,30 @@ class LabelEncoder:
         return np.array([self.mapping[label] for label in labels])
 
 
+class Unsqueeze:
+    """Class to insert a dimension of size one at the specified position.
+    Supports both numpy arrays and torch tensors as input.
+    """
+
+    def __init__(self, dim: int) -> None:
+        """Initialization.
+
+        Args:
+            dim (int): The dimension to insert the new axis.
+        """
+        self.dim = dim
+
+    def __call__(self, data: np.ndarray | torch.Tensor) -> np.ndarray | torch.Tensor:
+        if isinstance(data, np.ndarray):
+            return np.expand_dims(data, self.dim)
+        elif isinstance(data, torch.Tensor):
+            return torch.unsqueeze(data, self.dim)
+        else:
+            raise TypeError(
+                f"Unsqueeze only supports numpy array and torch Tensor but got {type(data)}"
+            )
+
+
 class Compose:
     """Class to composes multiple Callable together to conduct transformation on the data
     sequentially."""
