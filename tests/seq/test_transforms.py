@@ -12,6 +12,7 @@ from seqinfer.seq.transforms import (
     LabelEncoder,
     MultiKmerFreqGenerator,
     OneHotEncoder,
+    Squeeze,
     ToTensor,
     Unsqueeze,
 )
@@ -367,5 +368,33 @@ class TestUnsqueeze:
         with pytest.raises(
             TypeError,
             match="Unsqueeze only supports numpy array and torch Tensor but got <class 'str'>",
+        ):
+            transform(x)
+
+
+class TestSqueeze:
+    """Unit test class for Squeeze"""
+
+    def test_numpy(self):
+        """Test Squeeze transform on numpy array input."""
+        x = np.random.rand(1, 4, 1, 28, 1, 28)
+        transform = Squeeze()
+        x_squeezed = transform(x)
+        assert x_squeezed.shape == (4, 28, 28)
+
+    def test_torch(self):
+        """Test Squeeze transform on torch tensor input."""
+        x = torch.rand(1, 4, 1, 28, 1, 28)
+        transform = Squeeze()
+        x_squeezed = transform(x)
+        assert x_squeezed.shape == (4, 28, 28)
+
+    def test_invalid_type(self):
+        """Test Squeeze transform on invalid data type."""
+        x = "invalid"
+        transform = Squeeze()
+        with pytest.raises(
+            TypeError,
+            match="Squeeze only supports numpy array and torch Tensor but got <class 'str'>",
         ):
             transform(x)
