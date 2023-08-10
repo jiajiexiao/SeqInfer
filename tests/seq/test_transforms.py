@@ -13,6 +13,7 @@ from seqinfer.seq.transforms import (
     MultiKmerFreqGenerator,
     OneHotEncoder,
     ToTensor,
+    Unsqueeze,
 )
 from seqinfer.seq.vocabularies import SpecialToken
 
@@ -338,3 +339,33 @@ class TestLabelEncoder:
         labels = []
         expected = np.array([])
         assert all(le(labels) == expected)
+
+
+class TestUnsqueeze:
+    """Unit test class for Unsqueeze."""
+
+    @pytest.mark.parametrize("dim", [0, 1, 2])
+    def test_numpy(self, dim):
+        """Test Unsqueeze transform on numpy array input."""
+        x = np.random.rand(4, 28, 28)
+        transform = Unsqueeze(dim)
+        x_unsqueeze = transform(x)
+        assert x_unsqueeze.shape[dim] == 1
+
+    @pytest.mark.parametrize("dim", [0, 1, 2])
+    def test_torch(self, dim):
+        """Test Unsqueeze transform on torch tensor input."""
+        x = torch.rand(4, 28, 28)
+        transform = Unsqueeze(dim)
+        x_unsqueeze = transform(x)
+        assert x_unsqueeze.shape[dim] == 1
+
+    def test_invalid_type(self):
+        """Test Unsqueeze transform on invalid data type."""
+        x = "invalid"
+        transform = Unsqueeze(0)
+        with pytest.raises(
+            TypeError,
+            match="Unsqueeze only supports numpy array and torch Tensor but got <class 'str'>",
+        ):
+            transform(x)
