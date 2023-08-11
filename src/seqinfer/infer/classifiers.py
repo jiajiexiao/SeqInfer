@@ -25,7 +25,7 @@ class LitClassifier(L.LightningModule):
         model: nn.Module,
         is_output_logits: bool,
         loss: nn.Module | Callable,
-        metrics: torchmetrics.MetricCollection,
+        metrics: torchmetrics.MetricCollection | None = None,
         optimizer_path: str = "torch.optim.AdamW",
         optimizer_kwargs: dict | None = None,
         lr_scheduler_path: str | None = None,
@@ -38,8 +38,8 @@ class LitClassifier(L.LightningModule):
             model (nn.Module): Pytorch module of the model.
             is_output_logits (bool): whether the model output raw logits or not.
             loss (nn.Module | Callable): Pytorch module or a Callable for loss function.
-            metrics (torchmetrics.MetricCollection): A MetricCollection of evaluation
-            metrics.
+            metrics (torchmetrics.MetricCollection, optional): A MetricCollection of evaluation
+            metrics. Defaults to None.
             optimizer_path (str, optional): import path of the optimizer. Defaults to
             "torch.optim.AdamW".
             optimizer_kwargs (dict | None, optional): kwargs for the optimizer. Defaults to None.
@@ -49,7 +49,7 @@ class LitClassifier(L.LightningModule):
             Defaults to None.
         """
         super().__init__()
-        self.save_hyperparameters(ignore=["metrics"])
+        self.save_hyperparameters(ignore=["metrics", "model", "loss"])
 
         self.num_classes = num_classes
         self.model = model
@@ -69,9 +69,9 @@ class LitClassifier(L.LightningModule):
         self.lr_scheduler_path = lr_scheduler_path
         self.lr_scheduler_kwargs = lr_scheduler_kwargs if lr_scheduler_kwargs else {}
 
-        self.train_metrics = metrics.clone(prefix="train_")
-        self.val_metrics = metrics.clone(prefix="val_")
-        self.test_metrics = metrics.clone(prefix="test_")
+        self.train_metrics = metrics.clone(prefix="train_") if metrics else None
+        self.val_metrics = metrics.clone(prefix="val_") if metrics else None
+        self.test_metrics = metrics.clone(prefix="test_") if metrics else None
 
     def forward(self, *args: Any, **kwargs: Any) -> Any:
         return self.model(*args, **kwargs)
@@ -81,8 +81,9 @@ class LitClassifier(L.LightningModule):
         output = self.model(feat)
         loss = self.loss(output, target)
         self.log("train_loss", loss)
-        metrics = self.train_metrics(output, target)
-        self.log_dict(metrics)
+        if self.train_metrics is not None:
+            metrics = self.train_metrics(output, target)
+            self.log_dict(metrics)
         return loss
 
     def validation_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
@@ -94,24 +95,31 @@ class LitClassifier(L.LightningModule):
         return loss
 
     def _shared_eval_step(
-        self, batch: Any, batch_idx: int, metrics: torchmetrics.MetricCollection, prefix: str
+        self,
+        batch: Any,
+        batch_idx: int,
+        metrics: torchmetrics.MetricCollection | None,
+        prefix: str,
     ) -> torch.Tensor:
         feat, target = batch
         output = self.model(feat)
         loss = self.loss(output, target)
         self.log(f"{prefix}loss", loss)
-        metrics.update(output, target)
+        if metrics:
+            metrics.update(output, target)
         return loss
 
     def on_validation_epoch_end(self) -> None:
-        metrics = self.val_metrics.compute()
-        self.log_dict(metrics)
-        self.val_metrics.reset()  # reset metrics at the end of the epoch
+        if self.val_metrics:
+            metrics = self.val_metrics.compute()
+            self.log_dict(metrics)
+            self.val_metrics.reset()  # reset metrics at the end of the epoch
 
     def on_test_epoch_end(self) -> None:
-        metrics = self.test_metrics.compute()
-        self.log_dict(metrics)
-        self.test_metrics.reset()  # reset metrics at the end of the epoch
+        if self.test_metrics:
+            metrics = self.test_metrics.compute()
+            self.log_dict(metrics)
+            self.test_metrics.reset()  # reset metrics at the end of the epoch
 
     def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> torch.Tensor:
         feat, _ = batch
@@ -143,7 +151,7 @@ class LitBinaryClassifier(LitClassifier):
         model: nn.Module,
         is_output_logits: bool,
         loss: nn.Module | Callable,
-        metrics: torchmetrics.MetricCollection = DEFAULT_BINARY_CLASSIFICATION_METRICS,
+        metrics: torchmetrics.MetricCollection | None = DEFAULT_BINARY_CLASSIFICATION_METRICS,
         optimizer_path: str = "torch.optim.AdamW",
         optimizer_kwargs: dict | None = None,
         lr_scheduler_path: str | None = None,
