@@ -11,7 +11,9 @@ DEFAULT_BINARY_CLASSIFICATION_METRICS = torchmetrics.MetricCollection(
     [
         torchmetrics.classification.BinaryAccuracy(),  # torchmetrics auto handle output conversion
         torchmetrics.classification.BinaryAUROC(),
-        torchmetrics.classification.BinaryAveragePrecision(),
+        # torchmetrics.classification.BinaryAveragePrecision(), # this is commented as it requires
+        # target to be int or torch.Long dtype, while some loss such as torch.nn.BCEWithLogitsLoss
+        # requires float target.
     ]
 )
 

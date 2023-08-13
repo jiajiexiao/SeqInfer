@@ -127,12 +127,12 @@ class TestBinaryClassificationMetrics:
         self.prob = self.pred_logits.sigmoid()
 
     def test_default_binary_classification_metrics_key(self):
-        """Test that default metrics contains Accuracy, AUROC, AveragePrecision."""
+        """Test that default metrics contains Accuracy, AUROC."""
         classification_metrics_prob = self.metrics(self.pred_logits, self.target)
 
         assert "BinaryAccuracy" in classification_metrics_prob
         assert "BinaryAUROC" in classification_metrics_prob
-        assert "BinaryAveragePrecision" in classification_metrics_prob
+        # assert "BinaryAveragePrecision" in classification_metrics_prob
 
     def test_equality_logits_prob(self):
         """Test that metrics are same for logit and probability predictions. This is due to the
