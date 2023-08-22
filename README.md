@@ -2,7 +2,7 @@
 
 <!-- [![codecov](https://codecov.io/gh/username/repository/branchname/graph/badge.svg)](https://codecov.io/gh/username/repository)-->
 
-SeqInfer is a Python package for sequence inference, enabling outcome prediction, sequence
+SeqInfer is a Python package to infer from sequence, enabling outcome prediction, sequence
 generation, and meaningful representation discovery, etc for sequence-like data. 
 
 Initially focused on biological sequences such as DNA, RNA, and protein sequences, it aims to provide
