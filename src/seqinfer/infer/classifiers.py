@@ -5,6 +5,7 @@ import torch
 import torchmetrics
 from torch import nn
 
+from seqinfer.infer.components.losses import L1RegularizationLoss
 from seqinfer.utils.misc import import_object_from_path
 
 DEFAULT_BINARY_CLASSIFICATION_METRICS = torchmetrics.MetricCollection(
@@ -27,6 +28,7 @@ class LitClassifier(L.LightningModule):
         model: nn.Module,
         is_output_logits: bool,
         loss: nn.Module | Callable,
+        l1_loss_coef: float = 0.0,
         metrics: torchmetrics.MetricCollection | None = None,
         optimizer_path: str = "torch.optim.AdamW",
         optimizer_kwargs: dict | None = None,
@@ -40,6 +42,8 @@ class LitClassifier(L.LightningModule):
             model (nn.Module): Pytorch module of the model.
             is_output_logits (bool): whether the model output raw logits or not.
             loss (nn.Module | Callable): Pytorch module or a Callable for loss function.
+            l1_loss_coef: (float, optional): Coef for l1 loss added to the total loss for sparse
+            weights and biases of the network. Default to 0.0, meaning no l1 sparsity is needed.
             metrics (torchmetrics.MetricCollection, optional): A MetricCollection of evaluation
             metrics. Defaults to None.
             optimizer_path (str, optional): import path of the optimizer. Defaults to
@@ -57,6 +61,7 @@ class LitClassifier(L.LightningModule):
         self.model = model
         self.is_output_logits = is_output_logits
         self.loss = loss
+        self.l1_loss_coef = l1_loss_coef
         if self.is_output_logits:
             assert not isinstance(
                 self.loss, nn.BCELoss
@@ -75,13 +80,21 @@ class LitClassifier(L.LightningModule):
         self.val_metrics = metrics.clone(prefix="val_") if metrics else None
         self.test_metrics = metrics.clone(prefix="test_") if metrics else None
 
+    def get_loss(self, output: torch.Tensor, target: torch.Tensor, **kwargs) -> torch.Tensor:
+        """Method to compute loss"""
+        loss = self.loss(output, target, **kwargs)
+        if self.l1_loss_coef > 0.0:
+            l1_loss = L1RegularizationLoss(weight_decay=self.l1_loss_coef)(self.model)
+            return loss + l1_loss
+        return loss
+
     def forward(self, *args: Any, **kwargs: Any) -> Any:
         return self.model(*args, **kwargs)
 
     def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
         feat, target = batch
         output = self.model(feat)
-        loss = self.loss(output, target)
+        loss = self.get_loss(output, target)
         self.log("train_loss", loss)
         if self.train_metrics is not None:
             metrics = self.train_metrics(output, target)
@@ -105,7 +118,7 @@ class LitClassifier(L.LightningModule):
     ) -> torch.Tensor:
         feat, target = batch
         output = self.model(feat)
-        loss = self.loss(output, target)
+        loss = self.get_loss(output, target)
         self.log(f"{prefix}loss", loss)
         if metrics:
             metrics.update(output, target)
@@ -153,6 +166,7 @@ class LitBinaryClassifier(LitClassifier):
         model: nn.Module,
         is_output_logits: bool,
         loss: nn.Module | Callable,
+        l1_loss_coef: float = 0.0,
         metrics: torchmetrics.MetricCollection | None = DEFAULT_BINARY_CLASSIFICATION_METRICS,
         optimizer_path: str = "torch.optim.AdamW",
         optimizer_kwargs: dict | None = None,
@@ -164,6 +178,7 @@ class LitBinaryClassifier(LitClassifier):
             model,
             is_output_logits,
             loss,
+            l1_loss_coef,
             metrics,
             optimizer_path,
             optimizer_kwargs,
