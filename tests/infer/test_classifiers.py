@@ -20,6 +20,7 @@ class TestLitClassifier:
         self.model = nn.Linear(10, self.num_classes)
         self.is_output_logits = True
         self.loss = nn.CrossEntropyLoss()
+        self.l1_loss_coef = 0.01
         self.metrics = torchmetrics.MetricCollection(
             [torchmetrics.Accuracy(task="multiclass", num_classes=self.num_classes)]
         )
@@ -29,6 +30,7 @@ class TestLitClassifier:
             model=self.model,
             is_output_logits=self.is_output_logits,
             loss=self.loss,
+            l1_loss_coef=self.l1_loss_coef,
             metrics=self.metrics,
             lr_scheduler_path=self.lr_scheduler_path,
         )
@@ -96,8 +98,17 @@ class TestLitClassifier:
         # Validation
         self.trainer.validate(self.lit_classifier, dummy_val_dataloader)
         with torch.no_grad():
+            l1_reg = self.l1_loss_coef * torch.sum(
+                torch.concatenate(
+                    [
+                        torch.abs(param)
+                        for name, param in self.lit_classifier.model.named_parameters()
+                        if "bias" not in name
+                    ]
+                )
+            )
             val_output = self.lit_classifier.model(feat[range(10, 13)])
-            val_loss = self.loss(val_output, target[range(10, 13)])
+            val_loss = self.loss(val_output, target[range(10, 13)]) + l1_reg
         val_accuracy = (val_output.argmax(dim=1) == target[range(10, 13)]).float().mean()
         torch.testing.assert_close(self.trainer.logged_metrics["val_loss"], val_loss)
         torch.testing.assert_close(
@@ -108,7 +119,7 @@ class TestLitClassifier:
         self.trainer.test(self.lit_classifier, dummy_test_dataloader)
         with torch.no_grad():
             test_output = self.lit_classifier.model(feat[range(13, 16)])
-            test_loss = self.loss(test_output, target[range(13, 16)])
+            test_loss = self.loss(test_output, target[range(13, 16)]) + l1_reg
         test_accuracy = (test_output.argmax(dim=1) == target[range(13, 16)]).float().mean()
         torch.testing.assert_close(self.trainer.logged_metrics["test_loss"], test_loss)
         torch.testing.assert_close(
