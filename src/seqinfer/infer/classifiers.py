@@ -1,12 +1,10 @@
 from typing import Any, Callable
 
-import lightning as L
 import torch
 import torchmetrics
 from torch import nn
 
-from seqinfer.infer.components.losses import L1RegularizationLoss
-from seqinfer.utils.misc import import_object_from_path
+from seqinfer.infer.components.ligntning_modules import BaseLitModule
 
 DEFAULT_BINARY_CLASSIFICATION_METRICS = torchmetrics.MetricCollection(
     [
@@ -19,7 +17,7 @@ DEFAULT_BINARY_CLASSIFICATION_METRICS = torchmetrics.MetricCollection(
 )
 
 
-class LitClassifier(L.LightningModule):
+class LitClassifier(BaseLitModule):
     """Lightning module for general classification task"""
 
     def __init__(
@@ -54,14 +52,18 @@ class LitClassifier(L.LightningModule):
             lr_scheduler_kwargs (dict | None, optional): kwargs for the learning rate scheduler.
             Defaults to None.
         """
-        super().__init__()
-        self.save_hyperparameters(ignore=["metrics", "model", "loss"])
-
+        super().__init__(
+            model,
+            loss,
+            l1_loss_coef,
+            metrics,
+            optimizer_path,
+            optimizer_kwargs,
+            lr_scheduler_path,
+            lr_scheduler_kwargs,
+        )
         self.num_classes = num_classes
-        self.model = model
         self.is_output_logits = is_output_logits
-        self.loss = loss
-        self.l1_loss_coef = l1_loss_coef
         if self.is_output_logits:
             assert not isinstance(
                 self.loss, nn.BCELoss
@@ -71,91 +73,27 @@ class LitClassifier(L.LightningModule):
                 isinstance(self.loss, (nn.BCEWithLogitsLoss, nn.CrossEntropyLoss))
             ), f"{self.loss} requires model output logits"
 
-        self.optimizer_path = optimizer_path
-        self.optimizer_kwargs = optimizer_kwargs if optimizer_kwargs else {}
-        self.lr_scheduler_path = lr_scheduler_path
-        self.lr_scheduler_kwargs = lr_scheduler_kwargs if lr_scheduler_kwargs else {}
+    def predict_prob(self, feat: torch.Tensor) -> torch.Tensor:
+        """Method to output probability for predicted class(es)
 
-        self.train_metrics = metrics.clone(prefix="train_") if metrics else None
-        self.val_metrics = metrics.clone(prefix="val_") if metrics else None
-        self.test_metrics = metrics.clone(prefix="test_") if metrics else None
+        Args:
+            feat (torch.Tensor): input feature tensor
 
-    def get_loss(self, output: torch.Tensor, target: torch.Tensor, **kwargs) -> torch.Tensor:
-        """Method to compute loss"""
-        loss = self.loss(output, target, **kwargs)
-        if self.l1_loss_coef > 0.0:
-            l1_loss = L1RegularizationLoss(weight_decay=self.l1_loss_coef)(self.model)
-            return loss + l1_loss
-        return loss
-
-    def forward(self, *args: Any, **kwargs: Any) -> Any:
-        return self.model(*args, **kwargs)
-
-    def training_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
-        feat, target = batch
+        Returns:
+            torch.Tensor: probability for predicted class(es)
+        """
         output = self.model(feat)
-        loss = self.get_loss(output, target)
-        self.log("train_loss", loss)
-        if self.train_metrics is not None:
-            metrics = self.train_metrics(output, target)
-            self.log_dict(metrics)
-        return loss
-
-    def validation_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
-        loss = self._shared_eval_step(batch, batch_idx, self.val_metrics, "val_")
-        return loss
-
-    def test_step(self, batch: Any, batch_idx: int) -> torch.Tensor:
-        loss = self._shared_eval_step(batch, batch_idx, self.test_metrics, "test_")
-        return loss
-
-    def _shared_eval_step(
-        self,
-        batch: Any,
-        batch_idx: int,
-        metrics: torchmetrics.MetricCollection | None,
-        prefix: str,
-    ) -> torch.Tensor:
-        feat, target = batch
-        output = self.model(feat)
-        loss = self.get_loss(output, target)
-        self.log(f"{prefix}loss", loss)
-        if metrics:
-            metrics.update(output, target)
-        return loss
-
-    def on_validation_epoch_end(self) -> None:
-        if self.val_metrics:
-            metrics = self.val_metrics.compute()
-            self.log_dict(metrics)
-            self.val_metrics.reset()  # reset metrics at the end of the epoch
-
-    def on_test_epoch_end(self) -> None:
-        if self.test_metrics:
-            metrics = self.test_metrics.compute()
-            self.log_dict(metrics)
-            self.test_metrics.reset()  # reset metrics at the end of the epoch
-
-    def predict_step(self, batch: Any, batch_idx: int, dataloader_idx: int = 0) -> torch.Tensor:
-        feat, _ = batch
-        output = self.model(feat)
-        return output
-
-    def configure_optimizers(
-        self,
-    ) -> (
-        torch.optim.Optimizer
-        | tuple[list[torch.optim.Optimizer], list[torch.optim.lr_scheduler.LRScheduler]]
-    ):
-        optimizer = import_object_from_path(self.optimizer_path)(
-            self.model.parameters(), **self.optimizer_kwargs
-        )
-        if self.lr_scheduler_path:
-            lr_scheduler = import_object_from_path(self.lr_scheduler_path)(
-                optimizer, **self.lr_scheduler_kwargs
-            )
-            return [optimizer], [lr_scheduler]
-        return optimizer
+        if self.is_output_logits:
+            shape = output.shape
+            if len(shape) > 1 and output.shape[1] > 1:
+                # output probability for all predicted classes
+                output_prob = nn.functional.softmax(output, dim=1)
+            else:
+                # only output probability for positive class in binary classification
+                output_prob = nn.functional.sigmoid(output)
+            return output_prob
+        else:  # output is already the probability for predicted class
+            return output
 
 
 class LitBinaryClassifier(LitClassifier):
