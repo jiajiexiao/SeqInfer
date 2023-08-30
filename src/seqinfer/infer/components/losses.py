@@ -19,6 +19,6 @@ class L1RegularizationLoss(nn.Module):
         """Computes the L1 loss on the weights of the model."""
         l1_loss = 0.0
         for name, param in model.named_parameters():
-            if "bias" not in name:
-                l1_loss += torch.sum(torch.abs(param))
+            if "bias" not in name and param.requires_grad:
+                l1_loss += torch.mean(torch.abs(param))
         return self.weight_decay * l1_loss
