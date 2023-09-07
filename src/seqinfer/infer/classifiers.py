@@ -62,6 +62,8 @@ class LitClassifier(BaseLitModule):
             lr_scheduler_path,
             lr_scheduler_kwargs,
         )
+
+        self.save_hyperparameters("num_classes", "is_output_logits")
         self.num_classes = num_classes
         self.is_output_logits = is_output_logits
         if self.is_output_logits:
