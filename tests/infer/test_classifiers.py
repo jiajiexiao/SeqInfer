@@ -98,7 +98,7 @@ class TestLitClassifier:
         # Validation
         self.trainer.validate(self.lit_classifier, dummy_val_dataloader)
         with torch.no_grad():
-            l1_reg = self.l1_loss_coef * torch.sum(
+            l1_reg = self.l1_loss_coef * torch.mean(
                 torch.concatenate(
                     [
                         torch.abs(param)
