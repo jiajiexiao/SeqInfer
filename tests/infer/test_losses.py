@@ -14,7 +14,7 @@ class TestL1RegularizationLoss:
         with torch.no_grad():
             l1_loss = l1_reg(model)
             torch.testing.assert_close(
-                l1_loss.item(), 0.1 * torch.sum(torch.abs(model.weight)).item()
+                l1_loss.item(), 0.1 * torch.mean(torch.abs(model.weight)).item()
             )
 
     def test_zero_weight_decay(self):
