@@ -103,7 +103,7 @@ class TestLitClassifier:
                     [
                         torch.abs(param)
                         for name, param in self.lit_classifier.model.named_parameters()
-                        if "bias" not in name
+                        if "bias" not in name and param.requires_grad
                     ]
                 )
             )
