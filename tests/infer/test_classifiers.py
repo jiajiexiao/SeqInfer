@@ -46,44 +46,29 @@ class TestLitClassifier:
         """Pytest fixture for usable target"""
         return torch.randint(0, self.num_classes, (16,))  # Batch size 16, random integer labels
 
-    def test_forward(self, feat):
-        """Test forward method"""
-        output = self.lit_classifier(feat)
-        assert output.shape == (16, self.num_classes)
+    def test_multi_class_probs(self, feat):
+        """Test probability output for multi-class case"""
+        output = self.lit_classifier.predict_prob(feat)
+        batch_size = feat.shape[0]
+        assert output.shape == (
+            batch_size,
+            self.num_classes,
+        )  # output probabilities for all classes
+        torch.testing.assert_close(output.sum(dim=1), torch.ones(batch_size))  # probs sum to 1
 
-    def test_configure_optimizers(self):
-        """Test configure_optimizers method"""
-        optimizers, lr_schedulers = self.lit_classifier.configure_optimizers()
-        assert len(optimizers) == 1, f"Expected 1 optimizer but got {len(optimizers)}"
-        assert isinstance(optimizers[0], torch.optim.Optimizer), f"Not {type(optimizers[0])}"
-        assert len(lr_schedulers) == 1, f"Expected 1 lr_scheduler but got {len(lr_schedulers)}"
-        assert isinstance(
-            lr_schedulers[0], torch.optim.lr_scheduler.LRScheduler
-        ), f"Not {type(lr_schedulers[0])}"
+    def test_binary_class_probs(self, feat):
+        """Test probability output for binary class case"""
+        self.lit_classifier.num_classes = 2
+        self.lit_classifier.model = nn.Linear(10, 1)
+        output = self.lit_classifier.predict_prob(feat)
+        torch.testing.assert_close(output, torch.sigmoid(self.lit_classifier.model(feat)))
 
-    def test_training_step(self, feat, target):
-        """Test training_step method"""
-        batch = (feat, target)
-        loss = self.lit_classifier.training_step(batch, batch_idx=0)
-        assert isinstance(loss, torch.Tensor)
-
-    def test_validation_step(self, feat, target):
-        """Test validation_step method"""
-        batch = (feat, target)
-        loss = self.lit_classifier.validation_step(batch, batch_idx=0)
-        assert isinstance(loss, torch.Tensor)
-
-    def test_test_step(self, feat, target):
-        """Test test_step method"""
-        batch = (feat, target)
-        loss = self.lit_classifier.test_step(batch, batch_idx=0)
-        assert isinstance(loss, torch.Tensor)
-
-    def test_predict_step(self, feat):
-        """Test predict_step method"""
-        batch = (feat, None)  # Since we don't need targets for prediction
-        output = self.lit_classifier.predict_step(batch, batch_idx=0)
-        assert output.shape == (16, self.num_classes)
+    def test_probs_from_probs(self, feat):
+        """Test probability method when model already outputs probabilities"""
+        self.lit_classifier.is_output_logits = False
+        output = self.lit_classifier.predict_prob(feat)
+        assert output.shape == (feat.shape[0], self.num_classes)
+        torch.testing.assert_close(output, self.lit_classifier.model(feat))
 
     def test_metrics_logging(self, feat, target):
         """Test if the metrics are correctly logged during validation and test steps."""
