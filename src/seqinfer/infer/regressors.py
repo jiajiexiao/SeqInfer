@@ -10,7 +10,7 @@ class LitRegressor(BaseLitModule):
     """Lightning module for general regression tasks.
 
     This class is inherited from BaseLitModule and serves as a placeholder for regression tasks.
-    Currently the only change is to have the nn.MSELoss as the default loss.
+    Currently it only adds the nn.MSELoss as the default loss to the base BaseLitModule class.
     """
 
     def __init__(
