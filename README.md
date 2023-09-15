@@ -27,9 +27,12 @@ You can install `SeqInfer` using pip:
 
 `pip install seqinfer` 
 
-You can also install any branch directly from git repo as the following example:
+However, it is currently recommended to install it directly from git repo given the the pip release may
+not be up to date in the early stage of development of SeqInfer.
 
 `pip install git+https://github.com/jiajiexiao/seqinfer.git`
+
+
 
 ## Usage
 
