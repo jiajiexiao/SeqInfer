@@ -133,3 +133,89 @@ class BaseLitModule(L.LightningModule):
             )
             return [optimizer], [lr_scheduler]
         return optimizer
+
+
+class BaseEncoderDecoder(BaseLitModule):
+    """Base lightning module for encoder-decoder architectures"""
+
+    def __init__(
+        self,
+        encoder: nn.Module,
+        decoder: nn.Module,
+        loss: nn.Module | Callable,
+        l1_loss_coef: float = 0.0,
+        metrics: torchmetrics.MetricCollection | None = None,
+        optimizer_path: str = "torch.optim.AdamW",
+        optimizer_kwargs: dict | None = None,
+        lr_scheduler_path: str | None = None,
+        lr_scheduler_kwargs: dict | None = None,
+    ) -> None:
+        super().__init__(
+            model=nn.Sequential(encoder, decoder),
+            loss=loss,
+            l1_loss_coef=l1_loss_coef,
+            metrics=metrics,
+            optimizer_path=optimizer_path,
+            optimizer_kwargs=optimizer_kwargs,
+            lr_scheduler_path=lr_scheduler_path,
+            lr_scheduler_kwargs=lr_scheduler_kwargs,
+        )
+        self.encoder = encoder
+        self.decoder = decoder
+
+
+class BaseSeqGenDiffusion(BaseLitModule):
+    """Base lightning module for diffusion models"""
+
+    def __init__(
+        self,
+        model: nn.Module,
+        loss: nn.Module | Callable,
+        metrics: torchmetrics.MetricCollection | None = None,
+        optimizer_path: str = "torch.optim.AdamW",
+        optimizer_kwargs: dict | None = None,
+        lr_scheduler_path: str | None = None,
+        lr_scheduler_kwargs: dict | None = None,
+    ) -> None:
+        """Constructor method for BaseDiffusion.
+
+        Args:
+            model (nn.Module): Pytorch module for the diffusion model.
+            loss (nn.Module | Callable): Pytorch module or a Callable for loss function.
+            metrics (torchmetrics.MetricCollection, optional): Metrics to be computed during training
+            and evaluation. Default to None.
+            optimizer_path (str, optional): Path to the optimizer class. Default to "torch.optim.AdamW".
+            optimizer_kwargs (dict, optional): Keyword arguments for the optimizer. Default to None.
+            lr_scheduler_path (str, optional): Path to the learning rate scheduler class. Default to None.
+            lr_scheduler_kwargs (dict, optional): Keyword arguments for the learning rate scheduler. Default to None.
+        """
+        super().__init__(
+            model=model,
+            loss=loss,
+            metrics=metrics,
+            optimizer_path=optimizer_path,
+            optimizer_kwargs=optimizer_kwargs,
+            lr_scheduler_path=lr_scheduler_path,
+            lr_scheduler_kwargs=lr_scheduler_kwargs,
+        )
+
+    def generate(
+        self, start_sequence: torch.Tensor, num_steps: int, temperature: float = 1.0
+    ) -> torch.Tensor:
+        """Generate a sequence from a given start sequence.
+
+        Args:
+            start_sequence (torch.Tensor): The initial sequence to start generation from.
+            num_steps (int): The number of steps to generate.
+            temperature (float, optional): The temperature for sampling. Default to 1.0.
+
+        Returns:
+            torch.Tensor: The generated sequence.
+        """
+        generated_sequence = start_sequence.clone()
+        for _ in range(num_steps):
+            # Implement the sequence generation logic here
+            # using self.model and the current generated_sequence
+            pass
+
+        return generated_sequence
