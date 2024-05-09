@@ -10,7 +10,7 @@ class TestL1RegularizationLoss:
     def test_l1_reg_loss(self):
         """Test conventional use case"""
         model = nn.Linear(10, 1)
-        l1_reg = losses.L1RegularizationLoss(weight_decay=0.1)
+        l1_reg = losses.L1RegularizationLoss(lam=0.1)
         with torch.no_grad():
             l1_loss = l1_reg(model)
             torch.testing.assert_close(
@@ -20,7 +20,7 @@ class TestL1RegularizationLoss:
     def test_zero_weight_decay(self):
         """Test if weight decay = 0 return 0 loss"""
         model = nn.Linear(10, 1)
-        l1_reg = losses.L1RegularizationLoss(weight_decay=0.0)
+        l1_reg = losses.L1RegularizationLoss(lam=0.0)
         with torch.no_grad():
             l1_loss = l1_reg(model)
             torch.testing.assert_close(l1_loss.item(), 0.0)
@@ -30,7 +30,7 @@ class TestL1RegularizationLoss:
         model = nn.Linear(10, 1)
         model.weight.data.fill_(0)  # set weight = 0
         model.bias.data.fill_(1)  # set bias = 1
-        l1_reg = losses.L1RegularizationLoss(weight_decay=0.1)
+        l1_reg = losses.L1RegularizationLoss(lam=0.1)
         with torch.no_grad():
             l1_loss = l1_reg(model)
             torch.testing.assert_close(l1_loss.item(), 0.0)  # Bias not included

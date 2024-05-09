@@ -61,7 +61,7 @@ class BaseLitModule(L.LightningModule):
         """Method to compute loss"""
         loss = self.loss(output, target, **kwargs)
         if self.l1_loss_coef > 0.0:
-            l1_loss = L1RegularizationLoss(weight_decay=self.l1_loss_coef)(self.model)
+            l1_loss = L1RegularizationLoss(lam=self.l1_loss_coef)(self.model)
             return loss + l1_loss
         return loss
 

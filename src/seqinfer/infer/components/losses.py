@@ -6,14 +6,14 @@ class L1RegularizationLoss(nn.Module):
     """L1 regularization loss module that adds L1 loss on the weights (biases are excluded from
     the calculation) of a model to induce sparsity."""
 
-    def __init__(self, weight_decay: float = 0.01) -> None:
+    def __init__(self, lam: float = 0.01) -> None:
         """Initialization
 
         Args:
-            weight_decay (float, optional): L1 penalty coefficient. Defaults to 0.01.
+            lam (float, optional): L1 penalty coefficient. Defaults to 0.01.
         """
         super().__init__()
-        self.weight_decay = weight_decay
+        self.lam = lam
 
     def forward(self, model: nn.Module) -> torch.Tensor:
         """Computes the L1 loss on the weights of the model."""
@@ -23,4 +23,4 @@ class L1RegularizationLoss(nn.Module):
             if "bias" not in name and param.requires_grad:
                 l1_loss += torch.sum(torch.abs(param))
                 num_parameters += param.numel()
-        return self.weight_decay * l1_loss / num_parameters
+        return self.lam * l1_loss / num_parameters
