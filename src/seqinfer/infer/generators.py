@@ -1,7 +1,5 @@
 import random
 
-import numpy as np
-
 
 class RandomSequenceGenerator:
     def __init__(
@@ -111,7 +109,7 @@ class PWMInserter:
         motif = []
         for position_probs in self.pwm:
             chars, probs = zip(*position_probs.items())
-            sampled_char = self.rng.choices(population=chars, weights=probs)
+            sampled_char = self.rng.choices(population=chars, weights=probs)[0]
             motif.append(sampled_char)
         return "".join(motif)
 
@@ -138,7 +136,7 @@ class PWMInserter:
             )
 
         # Sample a motif based on PWM probabilities
-        motif = self.pwm.sample_motif()
+        motif = self.sample_motif()
 
         # Insert the motif into the sequence
         for motif_idx, seq_idx in enumerate(range(insert_pos, insert_pos + self.pwm_len)):
